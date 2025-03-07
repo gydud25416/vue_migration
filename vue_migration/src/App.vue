@@ -8,6 +8,6 @@ import {RouterView } from 'vue-router'
   </div>
 </template>
 
-<style scoped>
-
+<style>
+  @import url("./styles/default.css");
 </style>
