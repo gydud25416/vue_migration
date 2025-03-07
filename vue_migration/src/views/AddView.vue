@@ -33,10 +33,10 @@ function onlyNumber(){
 </template>
 
 <style>
+
 .main_wrap.wrap_add{ margin-top:1px;}
 .main_wrap.wrap_add>div{margin-bottom:20px;}
 
-.wrap_add{}
 .wrap_add h2 { text-align: center;}
 .wrap_add .date{  padding:10px 8px; height:30px; margin:20px 0; width:100%; border:#555 2px solid; }
 
@@ -49,7 +49,6 @@ function onlyNumber(){
 .wrap_add .text{ width:80%; text-align: right; margin-top:30px;}
 .wrap_add .text2{ width:100%;  text-align: right;}
 .wrap_add .btn{ display: flex; justify-content: center; gap:10px; margin-top:10px;}
-.wrap_add .btn button{ }
 
 
 </style>
