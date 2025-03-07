@@ -4,22 +4,21 @@
                     <li :class="plusFilter === '-1' ? 'on' : ''" @click="PlusFilter('-1')">지출</li>
                 </ul>
         <div className="wrap_graph">
-            {[2022, 2023, 2024].map((year)=>(
-                <div className='graph_box' key={year}>
-                    <!-- <div className='graph_item ' style={{height: yearFilter[year] + "%"}}></div> -->
-                    <p>{year}</p>
-                 </div>
-            ))}
+            <div class='graph_box' v-for="year in years" :key="year">
+                <p>{{ year }}</p>
+            </div>
         </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 
+const years = ref([2022, 2023, 2024]);
 const plusFilter = ref<string>("+1");
 function PlusFilter(value:string){
-  console.log(value)
+  plusFilter.value = value === "+1" ? "+1" : "-1";
 }
+
 </script>
 
 <style scoped>
