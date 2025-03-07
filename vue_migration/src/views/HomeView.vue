@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+import Button from '@/components/my-button.vue';
+import MyGraph from '@/components/my-graph.vue';
+import MyHeader from '@/components/my-header.vue';
+import MyItemList from '@/components/my-itemList.vue';
+import MyTotal from '@/components/my-total.vue';
+
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+    <MyHeader :title="'가계부'"/>
+    <MyGraph/>
+    <MyTotal/>
+    <MyItemList/>
+    <RouterLink to="/add"><Button :text="'추가하기'" :className="'btn_box'" /></RouterLink>
+
 </template>
