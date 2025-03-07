@@ -20,7 +20,6 @@
       </ul>
       <ul v-else  className="wrap_view">
         <li className='abc' v-for="data in datas" :key="data.id">
-          <!-- <p style={{color:it.add === "+1" ? "blue" : "red"}}>{it.add === "+1" ? "입금" : "출금"}</p> -->
           <p :style="{color: data.multiply === '+1' ? 'blue' : 'red'}">{{ data.multiply === '+1' ? '입금' : '출금' }}</p>
           <p className='day'>{{data.day}}</p>
           <p>{{data.content}}</p>
@@ -33,7 +32,9 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { ref } from 'vue';
+import axios from 'axios'
 
 export interface Data {
   id: string,
@@ -46,6 +47,17 @@ export interface Data {
 
 const plusFilter = ref<string>("all");
 const datas = ref<Data[]>([]);
+
+onMounted(async (): Promise<void>=>{
+  try {
+    const result = await axios.get(`http://localhost:3001/item`);
+    datas.value = result.data;
+    console.log(result)
+  }
+  catch(error){
+    console.error(error);
+  }
+})
 
 function onDelete(){
 
