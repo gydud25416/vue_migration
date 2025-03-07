@@ -1,85 +1,44 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import {RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <div class="main_wrap">
+    <RouterView/>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.main_wrap { max-width:500px; background:#fff; margin:0 auto; margin-top:100px;padding:30px;border-radius: 30px; box-shadow: 10px 10px 10px rgba(0,0,0,0.2)}
+
+.main_wrap>div{border-radius: 10px;margin-bottom:50px;}
+
+.loading { width:100%; height: 100%; position:fixed; top:0; left:0; background:rgba(0,0,0,0.6); z-index: 9999;  }
+.loading p{position:relative; text-align: center; top:50%; left:50%; transform: translate(-50%, -50%); font-size: 2vw; color:#fff;}
+.loading .circle {display: block; width:80px; height:80px; border-radius: 50%; position:absolute; top:56%; left:calc(50% - 40px); border-top:5px solid #fff;    animation: n1 1.5s infinite;}
+@keyframes n1{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+@media screen and (max-width:840px){
+    .loading p{font-size: 3vw;}
 }
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+@media screen and (max-width:550px){
+    .main_wrap{padding:30px 10px; margin:50px 7px 0 7px;}
+    h1, h2{font-size: 20px;}
+    .loading p{font-size: 6vw;}
+    p, li, input, select, option,.wrap_view li p.day, label{font-size: 10px;}
+    ul.wrap_view li{padding:8px 5px;}
+    div.wrap_total p{font-size: 18px; padding: 20px 20px 20px 0;}
+    .wrap_list .list_header input.ItemSearch{width:40%; margin-left:8px;}
+    .wrap_list div.list_header ul li{padding:0 4px;}
+    ul.wrap_view li button{padding:3px 5px; font-size: 10px;}
+    div.main_wrap>div{margin-bottom: 30px;}
+    button.btn_box{width:40%;padding:10px; font-size: 4vw;}
+    div.wrap_add input{font-size: 12px; height:40px;}
+    div.wrap_add select{font-size: 4vw; height:40px;}
+    .wrap_add .btn button{font-size: 4vw;}
+    div.wrap_add h2{font-size: 20px;}
 }
 </style>
