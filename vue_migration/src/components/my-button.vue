@@ -13,7 +13,6 @@
 </script>
 
 <style scoped>
-button{padding:10px 18px; font-size: 18px;  border:0; border-radius: 5px; color:#fff; font-family: 'GmarketSansMedium'; background:#aaa; cursor: pointer;}
 
 .btn_back{background:#555;}
 .btn_add{background:#5967e4;}
