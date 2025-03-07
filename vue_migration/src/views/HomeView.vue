@@ -12,6 +12,6 @@ import MyTotal from '@/components/my-total.vue';
     <MyGraph/>
     <MyTotal/>
     <MyItemList/>
-    <RouterLink to="/add"><Button :text="'추가하기'" /></RouterLink>
+    <RouterLink to="/add"><Button :text="'추가하기'" :className="'btn_box'" /></RouterLink>
 
 </template>

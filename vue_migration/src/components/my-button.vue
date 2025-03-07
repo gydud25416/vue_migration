@@ -1,5 +1,5 @@
 <template>
-  <button>{{ text }}</button>
+  <button :class="className">{{ text }}</button>
 </template>
 
 <script setup lang="ts">
@@ -7,6 +7,7 @@
 
   defineProps<{
     text: string
+    className: string
   }>();
 
 </script>

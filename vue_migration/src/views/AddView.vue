@@ -26,8 +26,8 @@ function onlyNumber(){
         <input className='text' placeholder='금액를 입력하세요.' @change="onlyNumber"  ref={textRef} type='text'/>
     </div>
     <div className='btn'>
-        <Button  text="등록" @click="onSubmit" class="btn_add" />
-        <RouterLink to="/"><Button :text="'취소'" /></RouterLink>
+        <Button  text="등록" @click="onSubmit" :className="'btn_add'" />
+        <RouterLink to="/"><Button :text="'취소'" :className="'btn_back'" /></RouterLink>
     </div>
   </div>
 </template>
