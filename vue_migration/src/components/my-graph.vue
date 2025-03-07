@@ -5,19 +5,24 @@
                 </ul>
         <div className="wrap_graph">
             <div class='graph_box' v-for="year in years" :key="year">
-                <p>{{ year }}</p>
+                    <div className='graph_item ' :style="{height: yearFilter[year] + '%'}"></div>
+                    <p>{{ year }}</p>
             </div>
         </div>
 </template>
 
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { ref } from 'vue';
 
 const years = ref([2022, 2023, 2024]);
 const plusFilter = ref<string>("+1");
+const yearFilter = reactive<Record<number, number>>({2024: 56, 2023:55, 2022:23});
+
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
 }
+
 
 </script>
 
