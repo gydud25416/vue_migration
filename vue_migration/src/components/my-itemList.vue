@@ -24,7 +24,7 @@
           <p className='day'>{{data.day}}</p>
           <p>{{data.content}}</p>
           <p>{{data.money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}} 원</p>
-          <button @click="onDelete">X</button>
+          <button @click="onDelete(data)">X</button>
         </li>
       </ul>
     </div>
@@ -35,15 +35,7 @@
 import { onMounted } from 'vue';
 import { ref } from 'vue';
 import axios from 'axios'
-
-export interface Data {
-  id: string,
-  money: string,
-  year: string,
-  day: string,
-  content: string,
-  multiply: string
-}
+import type { Data } from '@/common.type';
 
 const plusFilter = ref<string>("all");
 const datas = ref<Data[]>([]);
@@ -59,8 +51,23 @@ onMounted(async (): Promise<void>=>{
   }
 })
 
-function onDelete(){
+async function onDelete(delData:Data){
+  if(window.confirm("삭제하시겠습니까?")){
+    try{
+      const result = await axios.delete(`http://localhost:3001/item/${delData.id}`);
 
+      if (result.data && result.data.id) {
+        datas.value = datas.value?.filter((it) => it.id !== result.data.id);
+        alert("삭제되었습니다.");
+      } else {
+        alert("삭제 실패: 응답 데이터가 올바르지 않습니다.");
+      }
+    }
+    catch(error){
+      console.error("삭제 중 오류 발생:", error);
+      alert("삭제에 실패했습니다. 다시 시도해주세요.");
+    }
+  }
 }
 
 function itemPlus(value:string){

@@ -1,13 +1,80 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import Button from '@/components/my-button.vue';
 import MyHeader from '@/components/my-header.vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
-function onSubmit(){
+const priceValue = ref("");
+const priceRef = ref();
+const memoValue = ref("");
+const memoRef = ref();
+const dateValue = ref("");
+const dateRef = ref();
+const multiplyValue = ref("+1");
 
+const router = useRouter();
+
+function dateInput(){
+  if(dateRef.value.showPicker){
+    dateRef.value.showPicker();
+  } else {
+    dateRef.value.readOnly = false;
+    dateRef.value.focus();
+    dateRef.value.readOnly = true;
+  }
+}
+
+async function onSubmit(){
+  const onlyNumberTest = /[^0-9]/;
+
+  if(!dateValue.value){
+    alert("날짜를 선택해주세요.")
+    return;
+  }
+  if(!memoValue.value){
+    alert("메모를 입력해주세요.");
+    memoRef.value.focus();
+    return;
+  }
+
+  if(!priceValue.value){
+    alert("금액을 입력해주세요");
+    priceRef.value.focus()
+    return;
+  }
+  if(priceValue.value.match(onlyNumberTest)){
+    alert("금액은 숫자만 기재해주세요.");
+    priceValue.value = "";
+    priceRef.value.focus()
+    return;
+  }
+  if(window.confirm("저장하시겠습니까?")){
+    try {
+        const results = await axios.post(`http://localhost:3001/item/`,{
+        money: priceValue.value,
+        year: dateValue.value.split('-')[0],
+        day: dateValue.value,
+        content: memoValue.value,
+        multiply: multiplyValue.value
+      })
+      console.log(results.data);
+      router.push('/')
+    }
+    catch(error){
+      console.error(error);
+    }
+
+
+    alert("저장되었습니다.");
+    memoValue.value = "";
+    priceValue.value = "";
+    dateValue.value = "";
+  }
 }
 
 function onlyNumber(){
-
+  priceValue.value = priceValue.value.replace(/[^0-9]/, '');
 }
 </script>
 
@@ -15,15 +82,15 @@ function onlyNumber(){
   <div className="wrap_add  "  >
     <MyHeader :title="'추가하기'"/>
 
-    <input className='date' id='dataInput'    type='date'  />
+    <input className='date' id='dataInput' @click="dateInput" @focus="dateInput" ref="dateRef" v-model="dateValue"  type='date'  />
     <div>
         <label for='memo' style="display: block; font-size: 18px;">메모</label>
-        <input id='memo'  className='text2' placeholder='메모를 입력하세요.'  ref={contentRef} type='text'/>
-        <select ref={plusRef} >
+        <input id='memo'  className='text2' placeholder='메모를 입력하세요.' ref="memoRef" v-model="memoValue" type='text'/>
+        <select ref={plusRef} v-model="multiplyValue" >
             <option value="+1">입금</option>
             <option value="-1">출금</option>
         </select>
-        <input className='text' placeholder='금액를 입력하세요.' @change="onlyNumber"  ref={textRef} type='text'/>
+        <input className='text' placeholder='금액를 입력하세요.' @input="onlyNumber" ref="priceRef" v-model="priceValue"  type='text'/>
     </div>
     <div className='btn'>
         <Button  text="등록" @click="onSubmit" :className="'btn_add'" />
