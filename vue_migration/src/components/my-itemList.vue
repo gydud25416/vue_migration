@@ -1,25 +1,29 @@
 <template>
   <div class="wrap_list">
     <div class="list_header">
-                <select @change='handleOnChange'>
+                <select  v-model="yearValue">
                     <option value='전체'>전체</option>
                     <option value='2024'>2024</option>
                     <option value='2023'>2023</option>
                     <option value='2022'>2022</option>
                 </select>
-                <input type='text'   class='ItemSearch' placeholder='검색어를 입력하세요'  @change="handleOnChangeSearch" />
+                <div class="searchBox">
+                  <input type='text' class='ItemSearch' placeholder='검색어를 입력하세요'  @change="handleOnChangeSearch" />
+                  <MyButton :className="'btn_back'" :text="'검색'"/>
+                </div>
+
                 <ul class='plusFilter'>
                     <li :class='plusFilter === "all" ? "on" : ""' @click="itemPlus('all')">전체</li>
                     <li :class='plusFilter === "+1" ? "on" : ""' @click="itemPlus('+1')">입금</li>
-                    <li :class='plusFilter === "-1" ? "on" : ""' @click="itemPlus('-1')">전체</li>
+                    <li :class='plusFilter === "-1" ? "on" : ""' @click="itemPlus('-1')">출금</li>
                 </ul>
     </div>
     <div className='list_view'>
-      <ul v-if="datas.length <= 0"  className="wrap_view">
+      <ul v-if="formattedData.length <= 0"  className="wrap_view">
          <li style="justify-content: center;">내역이 없습니다.</li>
       </ul>
       <ul v-else  className="wrap_view">
-        <li className='abc' v-for="data in datas" :key="data.id">
+        <li className='abc' v-for="data in formattedData" :key="data.id">
           <p :style="{color: data.multiply === '+1' ? 'blue' : 'red'}">{{ data.multiply === '+1' ? '입금' : '출금' }}</p>
           <p className='day'>{{data.day}}</p>
           <p>{{data.content}}</p>
@@ -36,15 +40,25 @@ import { onMounted } from 'vue';
 import { ref } from 'vue';
 import axios from 'axios'
 import type { Data } from '@/common.type';
+import { computed } from 'vue';
+import MyButton from './my-button.vue';
 
 const plusFilter = ref<string>("all");
+const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
+const originalDatas = ref<Data[]>([]);
+
+const emit = defineEmits<{
+  (event: 'deleteData', id?: string):void;
+}>();
 
 onMounted(async (): Promise<void>=>{
   try {
     const result = await axios.get(`http://localhost:3001/item`);
-    datas.value = result.data;
-    console.log(result)
+    originalDatas.value = result.data.sort((a:Data ,b:Data )=>{
+      return new Date(b.day).getTime() - new Date(a.day).getTime() ;
+    });
+    datas.value = originalDatas.value;
   }
   catch(error){
     console.error(error);
@@ -59,6 +73,9 @@ async function onDelete(delData:Data){
       if (result.data && result.data.id) {
         datas.value = datas.value?.filter((it) => it.id !== result.data.id);
         alert("삭제되었습니다.");
+
+        emit('deleteData', delData.id)
+
       } else {
         alert("삭제 실패: 응답 데이터가 올바르지 않습니다.");
       }
@@ -70,17 +87,31 @@ async function onDelete(delData:Data){
   }
 }
 
+// 전체, 입금, 출금 필터링
 function itemPlus(value:string){
   plusFilter.value = value;
-}
-
-function handleOnChange(){
-
+  datas.value = originalDatas.value.filter((it)=> it.multiply === value);
+  if(value=== "all"){
+    datas.value = originalDatas.value;
+  }
 }
 
 function handleOnChangeSearch(){
-
 }
+
+const formattedData = computed(():Data[]=>{
+  let resluts = originalDatas.value;
+  if(yearValue.value !== "전체"){
+    resluts = resluts.filter((it)=> it.year === yearValue.value);
+  }
+  if(plusFilter.value !== "all"){
+    resluts = resluts.filter((it)=> it.multiply === plusFilter.value);
+  }
+
+  return resluts;
+
+})
+
 </script>
 
 <style scoped>
@@ -91,7 +122,8 @@ function handleOnChangeSearch(){
 .wrap_list .list_header ul li{padding:0 5px;  cursor: pointer;}
 .wrap_list .list_header ul li.on{color:#5967e4; }
 .wrap_list .list_header ul li:nth-child(2){border-right:2px solid #555;border-left:2px solid #555;}
-.wrap_list .list_header .ItemSearch { width:50%; text-align: right; border:0; border-bottom:2px solid #5967e4; padding: 5px 10px; font-family: 'GmarketSansMedium' ;}
+.wrap_list .list_header .ItemSearch {  text-align: right; border:0; border-bottom:2px solid #5967e4; padding: 5px 10px; font-family: 'GmarketSansMedium' ;}
+.wrap_list .list_header .btn_back { font-size: 13px; padding:5px ; font-family: 'GmarketSansMedium' ;}
 
 .wrap_view  {margin-top:5px; border-bottom:2px #555 solid; border-top:2px #555 solid;}
 .wrap_view  li { padding:12px 10px; border-bottom:2px #efefef solid; display: flex; justify-content: space-between; align-items: center;  }
