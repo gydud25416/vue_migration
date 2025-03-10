@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import Button from '@/components/my-button.vue';
 import MyHeader from '@/components/my-header.vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 const priceValue = ref("");
 const priceRef = ref();
@@ -9,6 +11,9 @@ const memoValue = ref("");
 const memoRef = ref();
 const dateValue = ref("");
 const dateRef = ref();
+const multiplyValue = ref("+1");
+
+const router = useRouter();
 
 function dateInput(){
   if(dateRef.value.showPicker){
@@ -20,7 +25,7 @@ function dateInput(){
   }
 }
 
-function onSubmit(){
+async function onSubmit(){
   const onlyNumberTest = /[^0-9]/;
 
   if(!dateValue.value){
@@ -45,10 +50,26 @@ function onSubmit(){
     return;
   }
   if(window.confirm("저장하시겠습니까?")){
+    try {
+        const results = await axios.post(`http://localhost:3001/item/`,{
+        money: priceValue.value,
+        year: dateValue.value.split('-')[0],
+        day: dateValue.value,
+        content: memoValue.value,
+        multiply: multiplyValue.value
+      })
+      console.log(results.data);
+      router.push('/')
+    }
+    catch(error){
+      console.error(error);
+    }
+
 
     alert("저장되었습니다.");
     memoValue.value = "";
     priceValue.value = "";
+    dateValue.value = "";
   }
 }
 
@@ -65,7 +86,7 @@ function onlyNumber(){
     <div>
         <label for='memo' style="display: block; font-size: 18px;">메모</label>
         <input id='memo'  className='text2' placeholder='메모를 입력하세요.' ref="memoRef" v-model="memoValue" type='text'/>
-        <select ref={plusRef} >
+        <select ref={plusRef} v-model="multiplyValue" >
             <option value="+1">입금</option>
             <option value="-1">출금</option>
         </select>
