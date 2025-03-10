@@ -59,12 +59,11 @@ async function onSubmit(){
         multiply: multiplyValue.value
       })
       console.log(results.data);
-      router.push('/')
+      router.push('/');
     }
     catch(error){
       console.error(error);
     }
-
 
     alert("저장되었습니다.");
     memoValue.value = "";

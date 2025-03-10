@@ -43,8 +43,10 @@ const datas = ref<Data[]>([]);
 onMounted(async (): Promise<void>=>{
   try {
     const result = await axios.get(`http://localhost:3001/item`);
-    datas.value = result.data;
-    console.log(result)
+    datas.value = result.data.sort((a:Data ,b:Data )=>{
+      return new Date(b.day).getTime() - new Date(a.day).getTime() ;
+    });
+    console.log(datas.value)
   }
   catch(error){
     console.error(error);
