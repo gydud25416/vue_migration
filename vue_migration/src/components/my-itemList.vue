@@ -40,13 +40,16 @@ import type { Data } from '@/common.type';
 const plusFilter = ref<string>("all");
 const datas = ref<Data[]>([]);
 
+const emit = defineEmits<{
+  (event: 'deleteData', id?: string):void;
+}>();
+
 onMounted(async (): Promise<void>=>{
   try {
     const result = await axios.get(`http://localhost:3001/item`);
     datas.value = result.data.sort((a:Data ,b:Data )=>{
       return new Date(b.day).getTime() - new Date(a.day).getTime() ;
     });
-    console.log(datas.value)
   }
   catch(error){
     console.error(error);
@@ -61,6 +64,9 @@ async function onDelete(delData:Data){
       if (result.data && result.data.id) {
         datas.value = datas.value?.filter((it) => it.id !== result.data.id);
         alert("삭제되었습니다.");
+
+        emit('deleteData', delData.id)
+
       } else {
         alert("삭제 실패: 응답 데이터가 올바르지 않습니다.");
       }

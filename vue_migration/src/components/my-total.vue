@@ -1,7 +1,7 @@
 <template>
  <div className="wrap_total">
             <h2>총 자산</h2>
-            <p> {{ total }} 원</p>
+            <p> {{ formattedTotal }} 원</p>
         </div>
 </template>
 
@@ -10,20 +10,37 @@ import axios from 'axios';
 import { onMounted } from 'vue';
 import {ref} from 'vue';
 import type { Data } from '@/common.type';
+import { computed } from 'vue';
+import { watch } from 'vue';
 
-const total = ref("");
+const total = ref(0);
 const datas = ref<Data[]>([]);
 
+const props = defineProps<{
+  fetchData:Data[]
+}>();
 
 onMounted(async ():Promise<void>=>{
   try{
     const results = await axios.get(`http://localhost:3001/item`);
     datas.value = results.data;
-    total.value = datas.value.reduce((pre, now)=> pre + (Number(now.multiply) * Number(now.money)), 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    total.value = datas.value.reduce((pre, now)=> pre + (Number(now.multiply) * Number(now.money)), 0)
   }
   catch(error){
     console.error(error);
   }
+})
+
+watch(
+  ()=> props.fetchData,
+  (newData)=>{
+    datas.value = newData
+    total.value = datas.value.reduce((pre, now)=> pre + (Number(now.multiply) * Number(now.money)), 0)
+  }
+)
+
+const formattedTotal = computed(()=>{
+  return total.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 })
 </script>
 
