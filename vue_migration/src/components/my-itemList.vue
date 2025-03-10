@@ -11,7 +11,7 @@
                 <ul class='plusFilter'>
                     <li :class='plusFilter === "all" ? "on" : ""' @click="itemPlus('all')">전체</li>
                     <li :class='plusFilter === "+1" ? "on" : ""' @click="itemPlus('+1')">입금</li>
-                    <li :class='plusFilter === "-1" ? "on" : ""' @click="itemPlus('-1')">전체</li>
+                    <li :class='plusFilter === "-1" ? "on" : ""' @click="itemPlus('-1')">출금</li>
                 </ul>
     </div>
     <div className='list_view'>
@@ -39,6 +39,7 @@ import type { Data } from '@/common.type';
 
 const plusFilter = ref<string>("all");
 const datas = ref<Data[]>([]);
+const originalDatas = ref<Data[]>([]);
 
 const emit = defineEmits<{
   (event: 'deleteData', id?: string):void;
@@ -47,9 +48,10 @@ const emit = defineEmits<{
 onMounted(async (): Promise<void>=>{
   try {
     const result = await axios.get(`http://localhost:3001/item`);
-    datas.value = result.data.sort((a:Data ,b:Data )=>{
+    originalDatas.value = result.data.sort((a:Data ,b:Data )=>{
       return new Date(b.day).getTime() - new Date(a.day).getTime() ;
     });
+    datas.value = originalDatas.value;
   }
   catch(error){
     console.error(error);
@@ -78,8 +80,13 @@ async function onDelete(delData:Data){
   }
 }
 
+// 전체, 입금, 출금 필터링
 function itemPlus(value:string){
   plusFilter.value = value;
+  datas.value = originalDatas.value.filter((it)=> it.multiply === value);
+  if(value=== "all"){
+    datas.value = originalDatas.value;
+  }
 }
 
 function handleOnChange(){
@@ -89,6 +96,7 @@ function handleOnChange(){
 function handleOnChangeSearch(){
 
 }
+
 </script>
 
 <style scoped>
