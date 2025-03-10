@@ -1,7 +1,7 @@
 <template>
   <div class="wrap_list">
     <div class="list_header">
-                <select @change='handleOnChange'>
+                <select  v-model="yearValue">
                     <option value='전체'>전체</option>
                     <option value='2024'>2024</option>
                     <option value='2023'>2023</option>
@@ -15,11 +15,11 @@
                 </ul>
     </div>
     <div className='list_view'>
-      <ul v-if="datas.length <= 0"  className="wrap_view">
+      <ul v-if="formattedData.length <= 0"  className="wrap_view">
          <li style="justify-content: center;">내역이 없습니다.</li>
       </ul>
       <ul v-else  className="wrap_view">
-        <li className='abc' v-for="data in datas" :key="data.id">
+        <li className='abc' v-for="data in formattedData" :key="data.id">
           <p :style="{color: data.multiply === '+1' ? 'blue' : 'red'}">{{ data.multiply === '+1' ? '입금' : '출금' }}</p>
           <p className='day'>{{data.day}}</p>
           <p>{{data.content}}</p>
@@ -36,8 +36,10 @@ import { onMounted } from 'vue';
 import { ref } from 'vue';
 import axios from 'axios'
 import type { Data } from '@/common.type';
+import { computed } from 'vue';
 
 const plusFilter = ref<string>("all");
+const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
 const originalDatas = ref<Data[]>([]);
 
@@ -89,13 +91,21 @@ function itemPlus(value:string){
   }
 }
 
-function handleOnChange(){
-
-}
-
 function handleOnChangeSearch(){
-
 }
+
+const formattedData = computed(():Data[]=>{
+  let resluts = originalDatas.value;
+  if(yearValue.value !== "전체"){
+    resluts = resluts.filter((it)=> it.year === yearValue.value);
+  }
+  if(plusFilter.value !== "all"){
+    resluts = resluts.filter((it)=> it.multiply === plusFilter.value);
+  }
+
+  return resluts;
+
+})
 
 </script>
 
