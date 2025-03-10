@@ -1,12 +1,30 @@
 <template>
  <div className="wrap_total">
             <h2>총 자산</h2>
-            <p> 3000 원</p>
+            <p> {{ total }} 원</p>
         </div>
 </template>
 
 <script setup lang="ts">
+import axios from 'axios';
+import { onMounted } from 'vue';
+import {ref} from 'vue';
+import type { Data } from '@/common.type';
 
+const total = ref("");
+const datas = ref<Data[]>([]);
+
+
+onMounted(async ():Promise<void>=>{
+  try{
+    const results = await axios.get(`http://localhost:3001/item`);
+    datas.value = results.data;
+    total.value = datas.value.reduce((pre, now)=> pre + (Number(now.multiply) * Number(now.money)), 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  catch(error){
+    console.error(error);
+  }
+})
 </script>
 
 <style scoped>
