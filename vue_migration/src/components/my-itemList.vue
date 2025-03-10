@@ -7,7 +7,11 @@
                     <option value='2023'>2023</option>
                     <option value='2022'>2022</option>
                 </select>
-                <input type='text'   class='ItemSearch' placeholder='검색어를 입력하세요'  @change="handleOnChangeSearch" />
+                <div class="searchBox">
+                  <input type='text' class='ItemSearch' placeholder='검색어를 입력하세요'  @change="handleOnChangeSearch" />
+                  <MyButton :className="'btn_back'" :text="'검색'"/>
+                </div>
+
                 <ul class='plusFilter'>
                     <li :class='plusFilter === "all" ? "on" : ""' @click="itemPlus('all')">전체</li>
                     <li :class='plusFilter === "+1" ? "on" : ""' @click="itemPlus('+1')">입금</li>
@@ -37,6 +41,7 @@ import { ref } from 'vue';
 import axios from 'axios'
 import type { Data } from '@/common.type';
 import { computed } from 'vue';
+import MyButton from './my-button.vue';
 
 const plusFilter = ref<string>("all");
 const yearValue = ref<string>("전체");
@@ -117,7 +122,8 @@ const formattedData = computed(():Data[]=>{
 .wrap_list .list_header ul li{padding:0 5px;  cursor: pointer;}
 .wrap_list .list_header ul li.on{color:#5967e4; }
 .wrap_list .list_header ul li:nth-child(2){border-right:2px solid #555;border-left:2px solid #555;}
-.wrap_list .list_header .ItemSearch { width:50%; text-align: right; border:0; border-bottom:2px solid #5967e4; padding: 5px 10px; font-family: 'GmarketSansMedium' ;}
+.wrap_list .list_header .ItemSearch {  text-align: right; border:0; border-bottom:2px solid #5967e4; padding: 5px 10px; font-family: 'GmarketSansMedium' ;}
+.wrap_list .list_header .btn_back { font-size: 13px; padding:5px ; font-family: 'GmarketSansMedium' ;}
 
 .wrap_view  {margin-top:5px; border-bottom:2px #555 solid; border-top:2px #555 solid;}
 .wrap_view  li { padding:12px 10px; border-bottom:2px #efefef solid; display: flex; justify-content: space-between; align-items: center;  }
