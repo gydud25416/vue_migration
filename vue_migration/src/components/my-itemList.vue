@@ -8,7 +8,7 @@
                     <option value='2022'>2022</option>
                 </select>
                 <div class="searchBox">
-                  <input type='text' class='ItemSearch' v-model="searchValue" placeholder='검색어를 입력하세요'  />
+                  <input type='text' class='ItemSearch' @keydown.enter="searchEnter" v-model="searchValue" placeholder='검색어를 입력하세요'  />
                   <MyButton :className="'btn_back'" :text="'검색'"  @click="handleOnChangeSearch" />
                 </div>
 
@@ -42,15 +42,19 @@ import axios from 'axios'
 import type { Data } from '@/common.type';
 import { computed } from 'vue';
 import MyButton from './my-button.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { watch } from 'vue';
 
 const plusFilter = ref<string>("all");
 const searchValue = ref<string>("");
+const searchTagValue = ref<string>("");
 const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
 const originalDatas = ref<Data[]>([]);
 
+
 const router = useRouter();
+const route = useRoute();
 
 const emit = defineEmits<{
   (event: 'deleteData', id?: string):void;
@@ -95,18 +99,32 @@ async function onDelete(delData:Data){
 function itemPlus(v:string){
   plusFilter.value = v;
 }
-
-function handleOnChangeSearch(){
-  const results = originalDatas.value;
-  results.filter((it)=> it.content.includes(searchValue.value));
-
-  router.push({query:{tag: searchValue.value}});
-  searchValue.value = "";
-
+function searchEnter() {
+    handleOnChangeSearch();
 }
 
+function handleOnChangeSearch(){
+  router.push({query:{tag: searchValue.value}});
+  if(!searchValue.value.trim()){
+    router.push({query:{}})
+    searchTagValue.value = "";
+  }
+}
+
+watch(
+  ()=> route.query.tag,
+  (newData)=>{
+    if(newData){
+      searchTagValue.value = newData.toString()
+    }
+  }
+)
+
 const formattedData = computed(():Data[]=>{
-  let results = originalDatas.value;
+  let results = datas.value;
+    if (searchTagValue.value) {
+    results = results.filter((it) => it.content.includes(searchTagValue.value));
+  }
   if(yearValue.value !== "전체"){
     results = results.filter((it)=> it.year === yearValue.value);
   }
@@ -115,7 +133,6 @@ const formattedData = computed(():Data[]=>{
   }
 
   return results;
-
 })
 
 </script>
