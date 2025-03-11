@@ -8,8 +8,8 @@
                     <option value='2022'>2022</option>
                 </select>
                 <div class="searchBox">
-                  <input type='text' class='ItemSearch' placeholder='검색어를 입력하세요'  @change="handleOnChangeSearch" />
-                  <MyButton :className="'btn_back'" :text="'검색'"/>
+                  <input type='text' class='ItemSearch' v-model="searchValue" placeholder='검색어를 입력하세요'  />
+                  <MyButton :className="'btn_back'" :text="'검색'"  @click="handleOnChangeSearch" />
                 </div>
 
                 <ul class='plusFilter'>
@@ -42,11 +42,15 @@ import axios from 'axios'
 import type { Data } from '@/common.type';
 import { computed } from 'vue';
 import MyButton from './my-button.vue';
+import { useRouter } from 'vue-router';
 
 const plusFilter = ref<string>("all");
+const searchValue = ref<string>("");
 const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
 const originalDatas = ref<Data[]>([]);
+
+const router = useRouter();
 
 const emit = defineEmits<{
   (event: 'deleteData', id?: string):void;
@@ -88,27 +92,29 @@ async function onDelete(delData:Data){
 }
 
 // 전체, 입금, 출금 필터링
-function itemPlus(value:string){
-  plusFilter.value = value;
-  datas.value = originalDatas.value.filter((it)=> it.multiply === value);
-  if(value=== "all"){
-    datas.value = originalDatas.value;
-  }
+function itemPlus(v:string){
+  plusFilter.value = v;
 }
 
 function handleOnChangeSearch(){
+  const results = originalDatas.value;
+  results.filter((it)=> it.content.includes(searchValue.value));
+
+  router.push({query:{tag: searchValue.value}});
+  searchValue.value = "";
+
 }
 
 const formattedData = computed(():Data[]=>{
-  let resluts = originalDatas.value;
+  let results = originalDatas.value;
   if(yearValue.value !== "전체"){
-    resluts = resluts.filter((it)=> it.year === yearValue.value);
+    results = results.filter((it)=> it.year === yearValue.value);
   }
   if(plusFilter.value !== "all"){
-    resluts = resluts.filter((it)=> it.multiply === plusFilter.value);
+    results = results.filter((it)=> it.multiply === plusFilter.value);
   }
 
-  return resluts;
+  return results;
 
 })
 
