@@ -3,9 +3,7 @@
     <div class="list_header">
                 <select  v-model="yearValue" @change="handleOnChangeYear">
                     <option value='전체'>전체</option>
-                    <option value='2024'>2024</option>
-                    <option value='2023'>2023</option>
-                    <option value='2022'>2022</option>
+                    <option v-for="year in years" :key="year">{{ year }}</option>
                 </select>
                 <div class="searchBox">
                   <input type='text' class='ItemSearch' @keydown.enter="handleOnChangeSearch" v-model="searchValue" placeholder='검색어를 입력하세요'  />
@@ -51,6 +49,7 @@ const searchTagValue = ref<string>("");
 const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
 const originalDatas = ref<Data[]>([]);
+const years = ref<string[]>([]);
 
 
 const router = useRouter();
@@ -67,6 +66,7 @@ onMounted(async (): Promise<void>=>{
       return new Date(b.day).getTime() - new Date(a.day).getTime() ;
     });
     datas.value = originalDatas.value;
+    years.value = [...new Set(datas.value.map((it)=> it.year))]
   }
   catch(error){
     console.error(error);
