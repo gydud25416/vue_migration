@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import Button from '@/components/my-button.vue';
 import MyHeader from '@/components/my-header.vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useFetchStore } from '@/stores/storeFetch';
+import type { Data } from '@/common.type';
 
 const priceValue = ref("");
 const priceRef = ref();
@@ -13,7 +13,7 @@ const dateValue = ref("");
 const dateRef = ref();
 const multiplyValue = ref("+1");
 
-const router = useRouter();
+const fetchStore = useFetchStore();
 
 function dateInput(){
   if(dateRef.value.showPicker){
@@ -49,27 +49,17 @@ async function onSubmit(){
     priceRef.value.focus()
     return;
   }
-  if(window.confirm("저장하시겠습니까?")){
-    try {
-        const results = await axios.post(`http://localhost:3001/item/`,{
+  const postData = {
         money: priceValue.value,
         year: dateValue.value.split('-')[0],
         day: dateValue.value,
         content: memoValue.value,
-        multiply: multiplyValue.value
-      })
-      console.log(results.data);
-      router.push('/');
-    }
-    catch(error){
-      console.error(error);
-    }
+        multiply: multiplyValue.value}
 
-    alert("저장되었습니다.");
+    fetchStore.create<Data>(`http://localhost:3001/item`, postData)
     memoValue.value = "";
     priceValue.value = "";
     dateValue.value = "";
-  }
 }
 
 function onlyNumber(){

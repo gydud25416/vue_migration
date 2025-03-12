@@ -1,14 +1,17 @@
 import { defineStore } from 'pinia'
 import axios from 'axios';
 import type { Data } from '@/common.type';
+import router from '@/router';
 
 interface State {
   watchDeleteData: Data | null
+  watchPostData: Data | null
 }
 
 export const useFetchStore = defineStore('fetch',{
  state: ():State=>({
-  watchDeleteData: null
+  watchDeleteData: null,
+  watchPostData: null,
  }),
  getters:{},
  actions:{
@@ -25,5 +28,18 @@ export const useFetchStore = defineStore('fetch',{
       }
     }
   },
+  async create<T>(apiUrl: string, apiBodyData: T){
+    if(window.confirm("저장하시겠습니까?")){
+      try {
+          const results = await axios.post(apiUrl ,apiBodyData)
+          this.watchPostData = results.data
+      }
+      catch(error){
+        console.error(error);
+      }
+      alert("저장되었습니다.");
+      router.push('/');
+    }
+  }
  },
 });

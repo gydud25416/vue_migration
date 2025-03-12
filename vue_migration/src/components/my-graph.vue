@@ -48,6 +48,15 @@ watch(
   }
 )
 
+watch(
+  ()=> fetchStore.watchPostData,
+  (newData)=>{
+    if(newData){
+      datas.value.push(newData);
+    }
+  }
+)
+
 const formattedPercent = computed(()=>{
   const plusTotal = datas.value.filter((it)=> it.multiply === plusFilter.value).reduce((pre, now) => pre + Number(now.money), 0);
   const yearsMoneyArray = years.value.map((year)=>
