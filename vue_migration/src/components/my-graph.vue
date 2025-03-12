@@ -12,16 +12,29 @@
 </template>
 
 <script setup lang="ts">
+import type { Data } from '@/common.type';
+import axios from 'axios';
+import { onMounted } from 'vue';
 import { reactive } from 'vue';
 import { ref } from 'vue';
 
-const years = ref([2022, 2023, 2024]);
-const plusFilter = ref<string>("+1");
-const yearFilter = reactive<Record<number, number>>({2024: 56, 2023:55, 2022:23});
+const years = ref<string[]>([]);
+const datas = ref<Data[]>([]);
+  const plusFilter = ref<string>("+1");
+const yearFilter = reactive<Record<string, number>>({"2024": 56, "2023":55 });
 
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
 }
+
+onMounted(async ():Promise<void>=>{
+  try{
+    const results = await axios.get(`http://localhost:3001/item`);
+    datas.value = results.data
+    years.value = [...new Set(datas.value.map(item => item.year))]
+  }
+  catch(error){console.error(error)}
+})
 
 
 </script>
