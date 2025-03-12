@@ -5,7 +5,7 @@
                 </ul>
         <div className="wrap_graph">
             <div class='graph_box' v-for="year in years" :key="year">
-                    <div className='graph_item ' :style="{height: yearFilter[year] + '%'}"></div>
+                    <div className='graph_item ' :style="{height: formattedPercent[year] + '%'}"></div>
                     <p>{{ year }}</p>
             </div>
         </div>
@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import type { Data } from '@/common.type';
 import axios from 'axios';
+import { computed } from 'vue';
 import { onMounted } from 'vue';
 import { reactive } from 'vue';
 import { ref } from 'vue';
@@ -32,12 +33,11 @@ onMounted(async ():Promise<void>=>{
     const results = await axios.get(`http://localhost:3001/item`);
     datas.value = results.data;
     years.value = [...new Set(datas.value.map(item => item.year).sort((a,b)=> Number(a) - Number(b)))];
-    setPercent()
   }
   catch(error){console.error(error)}
 });
 
-function setPercent(){
+const formattedPercent = computed(()=>{
   const plusTotal = datas.value.filter((it)=> it.multiply === plusFilter.value).reduce((pre, now) => pre + Number(now.money), 0);
   const yearsMoneyArray = years.value.map((year)=>
     datas.value.filter((it)=> it.year === year && it.multiply === plusFilter.value).reduce((pre, now)=> pre + Number(now.money), 0)
@@ -46,7 +46,8 @@ function setPercent(){
   years.value.forEach((item, idx)=>{
     yearFilter[item] = percentArray[idx]
   })
-}
+  return yearFilter
+})
 
 </script>
 
