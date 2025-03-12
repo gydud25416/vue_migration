@@ -110,6 +110,7 @@ function handleOnChangeSearch(){
     delete newQuery["search"];
     router.push({query: newQuery})
     searchValue.value = "";
+    searchTagValue.value = ""; // 빈값을 할당하여 formattedData computed가 작동하도록 함
   }
 }
 
