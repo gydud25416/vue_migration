@@ -42,6 +42,7 @@ import { computed } from 'vue';
 import MyButton from './my-button.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { watch } from 'vue';
+import { useFetchStore } from '@/stores/storeFetch';
 
 const plusFilter = ref<string>("all");
 const searchValue = ref<string>("");
@@ -51,6 +52,7 @@ const datas = ref<Data[]>([]);
 const originalDatas = ref<Data[]>([]);
 const years = ref<string[]>([]);
 
+const fetchStore = useFetchStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -73,27 +75,17 @@ onMounted(async (): Promise<void>=>{
   }
 })
 
-async function onDelete(delData:Data){
-  if(window.confirm("삭제하시겠습니까?")){
-    try{
-      const result = await axios.delete(`http://localhost:3001/item/${delData.id}`);
-
-      if (result.data && result.data.id) {
-        datas.value = datas.value?.filter((it) => it.id !== result.data.id);
-        alert("삭제되었습니다.");
-
-        emit('deleteData', delData.id)
-
-      } else {
-        alert("삭제 실패: 응답 데이터가 올바르지 않습니다.");
-      }
-    }
-    catch(error){
-      console.error("삭제 중 오류 발생:", error);
-      alert("삭제에 실패했습니다. 다시 시도해주세요.");
-    }
-  }
+function onDelete(delData:Data){
+  fetchStore.delete(`http://localhost:3001/item/${delData.id}`)
+  emit('deleteData', delData.id)
 }
+
+watch(
+  ()=> fetchStore.watchDeleteData,
+  (newData)=>{
+    originalDatas.value = originalDatas.value.filter((it)=> it.id !== newData?.id);
+  }
+)
 
 // 전체, 입금, 출금 필터링
 function itemPlus(v:string){
@@ -119,6 +111,8 @@ function handleOnChangeYear(){
   const newQuery = {...route.query, year: yearValue.value};
   router.push({query:newQuery});
 }
+
+// url 쿼리값 감시하여 검색어 필터링
 watch(
   ()=> route.query.search,
   (newData)=>{
@@ -128,7 +122,7 @@ watch(
   }
 )
 
-// URL 쿼리값으로 필터링
+// 새로고침하면 URL 쿼리값으로 필터링
 onMounted(()=>{
   yearValue.value = route.query.year ? `${route.query.year}` : "전체";
   searchValue.value = route.query.search ? `${route.query.search}` : "";
@@ -138,7 +132,7 @@ onMounted(()=>{
 
 // 리스트 데이터
 const formattedData = computed(():Data[]=>{
-  let results = datas.value;
+  let results = originalDatas.value;
   if (searchTagValue.value) {
     results = results.filter((it) => it.content.includes(searchTagValue.value));
   }

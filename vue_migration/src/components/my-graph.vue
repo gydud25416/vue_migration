@@ -14,15 +14,19 @@
 <script setup lang="ts">
 import type { Data } from '@/common.type';
 import axios from 'axios';
+import { watch } from 'vue';
 import { computed } from 'vue';
 import { onMounted } from 'vue';
 import { reactive } from 'vue';
 import { ref } from 'vue';
+import { useFetchStore } from '@/stores/storeFetch';
 
 const years = ref<string[]>([]);
 const datas = ref<Data[]>([]);
 const plusFilter = ref<string>("+1");
 const yearFilter = reactive<Record<string, number>>({});
+
+const fetchStore = useFetchStore();
 
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
@@ -36,6 +40,13 @@ onMounted(async ():Promise<void>=>{
   }
   catch(error){console.error(error)}
 });
+
+watch(
+  ()=> fetchStore.watchDeleteData,
+  (newData)=>{
+    datas.value = datas.value.filter((it)=> it.id !== newData?.id);
+  }
+)
 
 const formattedPercent = computed(()=>{
   const plusTotal = datas.value.filter((it)=> it.multiply === plusFilter.value).reduce((pre, now) => pre + Number(now.money), 0);
