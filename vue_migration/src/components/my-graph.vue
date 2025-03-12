@@ -20,8 +20,8 @@ import { ref } from 'vue';
 
 const years = ref<string[]>([]);
 const datas = ref<Data[]>([]);
-  const plusFilter = ref<string>("+1");
-const yearFilter = reactive<Record<string, number>>({"2024": 56, "2023":55 });
+const plusFilter = ref<string>("+1");
+const yearFilter = reactive<Record<string, number>>({});
 
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
@@ -30,12 +30,23 @@ function PlusFilter(value:string){
 onMounted(async ():Promise<void>=>{
   try{
     const results = await axios.get(`http://localhost:3001/item`);
-    datas.value = results.data
-    years.value = [...new Set(datas.value.map(item => item.year))]
+    datas.value = results.data;
+    years.value = [...new Set(datas.value.map(item => item.year).sort((a,b)=> Number(a) - Number(b)))];
+    setPercent()
   }
   catch(error){console.error(error)}
-})
+});
 
+function setPercent(){
+  const plusTotal = datas.value.filter((it)=> it.multiply === plusFilter.value).reduce((pre, now) => pre + Number(now.money), 0);
+  const yearsMoneyArray = years.value.map((year)=>
+    datas.value.filter((it)=> it.year === year && it.multiply === plusFilter.value).reduce((pre, now)=> pre + Number(now.money), 0)
+  )
+  const percentArray = yearsMoneyArray.map((money)=> Math.round((money / plusTotal)*100) )
+  years.value.forEach((item, idx)=>{
+    yearFilter[item] = percentArray[idx]
+  })
+}
 
 </script>
 
