@@ -103,14 +103,15 @@ function itemPlus(v:string){
 }
 
 function handleOnChangeSearch(){
-  const newQuery = {...route.query, search: searchValue.value}
-  router.push({query:newQuery});
   if(!searchValue.value.trim()){
     const newQuery = {...route.query};
     delete newQuery["search"];
     router.push({query: newQuery})
     searchValue.value = "";
     searchTagValue.value = ""; // 빈값을 할당하여 formattedData computed가 작동하도록 함
+  } else {
+    const newQuery = {...route.query, search: searchValue.value}
+    router.push({query:newQuery});
   }
 }
 
@@ -131,13 +132,14 @@ watch(
 onMounted(()=>{
   yearValue.value = route.query.year ? `${route.query.year}` : "전체";
   searchValue.value = route.query.search ? `${route.query.search}` : "";
+  searchTagValue.value = route.query.search ? `${route.query.search}` : "";
   plusFilter.value = route.query.multiply ? `${route.query.multiply}` : "all";
 })
 
 // 리스트 데이터
 const formattedData = computed(():Data[]=>{
   let results = datas.value;
-    if (searchTagValue.value) {
+  if (searchTagValue.value) {
     results = results.filter((it) => it.content.includes(searchTagValue.value));
   }
   if(yearValue.value !== "전체"){
