@@ -106,7 +106,9 @@ function searchEnter() {
 function handleOnChangeSearch(){
   router.push({query:{tag: searchValue.value}});
   if(!searchValue.value.trim()){
-    router.push({query:{}})
+    const newQuery = {...route.query};
+    delete newQuery["tag"];
+    router.push({query: newQuery})
     searchTagValue.value = "";
   }
 }
@@ -115,7 +117,7 @@ watch(
   ()=> route.query.tag,
   (newData)=>{
     if(newData){
-      searchTagValue.value = newData.toString()
+      searchTagValue.value = newData.toString();
     }
   }
 )
