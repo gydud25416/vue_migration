@@ -1,14 +1,14 @@
 <template>
   <div class="wrap_list">
     <div class="list_header">
-                <select  v-model="yearValue">
+                <select  v-model="yearValue" @change="handleOnChangeYear">
                     <option value='전체'>전체</option>
                     <option value='2024'>2024</option>
                     <option value='2023'>2023</option>
                     <option value='2022'>2022</option>
                 </select>
                 <div class="searchBox">
-                  <input type='text' class='ItemSearch' @keydown.enter="searchEnter" v-model="searchValue" placeholder='검색어를 입력하세요'  />
+                  <input type='text' class='ItemSearch' @keydown.enter="handleOnChangeSearch" v-model="searchValue" placeholder='검색어를 입력하세요'  />
                   <MyButton :className="'btn_back'" :text="'검색'"  @click="handleOnChangeSearch" />
                 </div>
 
@@ -98,23 +98,27 @@ async function onDelete(delData:Data){
 // 전체, 입금, 출금 필터링
 function itemPlus(v:string){
   plusFilter.value = v;
-}
-function searchEnter() {
-    handleOnChangeSearch();
+  const newQuery = {...route.query, multiply: plusFilter.value}
+  router.push({query:newQuery});
 }
 
 function handleOnChangeSearch(){
-  router.push({query:{tag: searchValue.value}});
+  const newQuery = {...route.query, search: searchValue.value}
+  router.push({query:newQuery});
   if(!searchValue.value.trim()){
     const newQuery = {...route.query};
-    delete newQuery["tag"];
+    delete newQuery["search"];
     router.push({query: newQuery})
-    searchTagValue.value = "";
+    searchValue.value = "";
   }
 }
 
+function handleOnChangeYear(){
+  const newQuery = {...route.query, year: yearValue.value};
+  router.push({query:newQuery});
+}
 watch(
-  ()=> route.query.tag,
+  ()=> route.query.search,
   (newData)=>{
     if(newData){
       searchTagValue.value = newData.toString();
@@ -122,6 +126,14 @@ watch(
   }
 )
 
+// URL 쿼리값으로 필터링
+onMounted(()=>{
+  yearValue.value = route.query.year ? `${route.query.year}` : "전체";
+  searchValue.value = route.query.search ? `${route.query.search}` : "";
+  plusFilter.value = route.query.multiply ? `${route.query.multiply}` : "all";
+})
+
+// 리스트 데이터
 const formattedData = computed(():Data[]=>{
   let results = datas.value;
     if (searchTagValue.value) {
