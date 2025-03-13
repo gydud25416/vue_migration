@@ -95,6 +95,7 @@ function itemPlus(v:string){
   router.push({query:newQuery});
 }
 
+// 검색어 필터링
 function handleOnChangeSearch(){
   if(!searchValue.value.trim()){
     const newQuery = {...route.query};
