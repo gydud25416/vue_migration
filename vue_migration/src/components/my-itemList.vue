@@ -127,6 +127,9 @@ onMounted(()=>{
   yearValue.value = route.query.year ? `${route.query.year}` : "전체";
   searchValue.value = route.query.search ? `${route.query.search}` : "";
   searchTagValue.value = route.query.search ? `${route.query.search}` : "";
+  if(String(route.query.multiply).trim() === "1"){
+      route.query.multiply = "+1"
+    }
   plusFilter.value = route.query.multiply ? `${route.query.multiply}` : "all";
 })
 
