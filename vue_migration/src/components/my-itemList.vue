@@ -170,4 +170,10 @@ const formattedData = computed(():Data[]=>{
 .wrap_view p:nth-child(3) { width:33%;}
 .wrap_view p:nth-child(4) { width: 22%;}
 
+@media screen and (max-width:550px){
+.wrap_view  li .day{font-size: 10px; }
+.wrap_list .list_header input.ItemSearch{width:65%; margin-left:8px;}
+
+}
+
 </style>
