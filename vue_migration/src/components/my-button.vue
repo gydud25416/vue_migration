@@ -19,4 +19,7 @@
 .btn_box{width:60%; padding:15px; display: block; margin:0 auto; background:#5967e4; font-size: 18px;}
 .btn_box.off{background:rgba(0,0,0,0.3);}
 
+@media screen and (max-width:550px){
+  button{font-size: 10px !important;}
+}
 </style>

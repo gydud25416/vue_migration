@@ -1,15 +1,13 @@
 <template>
   <div class="wrap_list">
     <div class="list_header">
-                <select  v-model="yearValue">
+                <select  v-model="yearValue" @change="handleOnChangeYear">
                     <option value='전체'>전체</option>
-                    <option value='2024'>2024</option>
-                    <option value='2023'>2023</option>
-                    <option value='2022'>2022</option>
+                    <option v-for="year in years" :key="year">{{ year }}</option>
                 </select>
                 <div class="searchBox">
-                  <input type='text' class='ItemSearch' placeholder='검색어를 입력하세요'  @change="handleOnChangeSearch" />
-                  <MyButton :className="'btn_back'" :text="'검색'"/>
+                  <input type='text' class='ItemSearch' @keydown.enter="handleOnChangeSearch" v-model="searchValue" placeholder='검색어를 입력하세요'  />
+                  <MyButton :className="'btn_back'" :text="'검색'"  @click="handleOnChangeSearch" />
                 </div>
 
                 <ul class='plusFilter'>
@@ -42,11 +40,22 @@ import axios from 'axios'
 import type { Data } from '@/common.type';
 import { computed } from 'vue';
 import MyButton from './my-button.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { watch } from 'vue';
+import { useFetchStore } from '@/stores/storeFetch';
 
 const plusFilter = ref<string>("all");
+const searchValue = ref<string>("");
+const searchTagValue = ref<string>("");
 const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
 const originalDatas = ref<Data[]>([]);
+const years = ref<string[]>([]);
+
+const fetchStore = useFetchStore();
+
+const router = useRouter();
+const route = useRoute();
 
 const emit = defineEmits<{
   (event: 'deleteData', id?: string):void;
@@ -59,57 +68,82 @@ onMounted(async (): Promise<void>=>{
       return new Date(b.day).getTime() - new Date(a.day).getTime() ;
     });
     datas.value = originalDatas.value;
+    years.value = [...new Set(datas.value.map((it)=> it.year))]
   }
   catch(error){
     console.error(error);
   }
 })
 
-async function onDelete(delData:Data){
-  if(window.confirm("삭제하시겠습니까?")){
-    try{
-      const result = await axios.delete(`http://localhost:3001/item/${delData.id}`);
-
-      if (result.data && result.data.id) {
-        datas.value = datas.value?.filter((it) => it.id !== result.data.id);
-        alert("삭제되었습니다.");
-
-        emit('deleteData', delData.id)
-
-      } else {
-        alert("삭제 실패: 응답 데이터가 올바르지 않습니다.");
-      }
-    }
-    catch(error){
-      console.error("삭제 중 오류 발생:", error);
-      alert("삭제에 실패했습니다. 다시 시도해주세요.");
-    }
-  }
+function onDelete(delData:Data){
+  fetchStore.delete(`http://localhost:3001/item/${delData.id}`)
+  emit('deleteData', delData.id)
 }
 
-// 전체, 입금, 출금 필터링
-function itemPlus(value:string){
-  plusFilter.value = value;
-  datas.value = originalDatas.value.filter((it)=> it.multiply === value);
-  if(value=== "all"){
-    datas.value = originalDatas.value;
+watch(
+  ()=> fetchStore.watchDeleteData,
+  (newData)=>{
+    originalDatas.value = originalDatas.value.filter((it)=> it.id !== newData?.id);
   }
+)
+
+// 전체, 입금, 출금 필터링
+function itemPlus(v:string){
+  plusFilter.value = v;
+  const newQuery = {...route.query, multiply: plusFilter.value}
+  router.push({query:newQuery});
 }
 
 function handleOnChangeSearch(){
+  if(!searchValue.value.trim()){
+    const newQuery = {...route.query};
+    delete newQuery["search"];
+    router.push({query: newQuery})
+    searchValue.value = "";
+    searchTagValue.value = ""; // 빈값을 할당하여 formattedData computed가 작동하도록 함
+  } else {
+    const newQuery = {...route.query, search: searchValue.value}
+    router.push({query:newQuery});
+  }
 }
 
+function handleOnChangeYear(){
+  const newQuery = {...route.query, year: yearValue.value};
+  router.push({query:newQuery});
+}
+
+// url 쿼리값 감시하여 검색어 필터링
+watch(
+  ()=> route.query.search,
+  (newData)=>{
+    if(newData){
+      searchTagValue.value = newData.toString();
+    }
+  }
+)
+
+// 새로고침하면 URL 쿼리값으로 필터링
+onMounted(()=>{
+  yearValue.value = route.query.year ? `${route.query.year}` : "전체";
+  searchValue.value = route.query.search ? `${route.query.search}` : "";
+  searchTagValue.value = route.query.search ? `${route.query.search}` : "";
+  plusFilter.value = route.query.multiply ? `${route.query.multiply}` : "all";
+})
+
+// 리스트 데이터
 const formattedData = computed(():Data[]=>{
-  let resluts = originalDatas.value;
+  let results = originalDatas.value;
+  if (searchTagValue.value) {
+    results = results.filter((it) => it.content.includes(searchTagValue.value));
+  }
   if(yearValue.value !== "전체"){
-    resluts = resluts.filter((it)=> it.year === yearValue.value);
+    results = results.filter((it)=> it.year === yearValue.value);
   }
   if(plusFilter.value !== "all"){
-    resluts = resluts.filter((it)=> it.multiply === plusFilter.value);
+    results = results.filter((it)=> it.multiply === plusFilter.value);
   }
 
-  return resluts;
-
+  return results;
 })
 
 </script>
@@ -135,5 +169,11 @@ const formattedData = computed(():Data[]=>{
 .wrap_view p:nth-child(2) { width: 20%;}
 .wrap_view p:nth-child(3) { width:33%;}
 .wrap_view p:nth-child(4) { width: 22%;}
+
+@media screen and (max-width:550px){
+.wrap_view  li .day{font-size: 10px; }
+.wrap_list .list_header input.ItemSearch{width:65%; margin-left:8px;}
+
+}
 
 </style>

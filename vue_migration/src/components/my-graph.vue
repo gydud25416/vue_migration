@@ -5,24 +5,69 @@
                 </ul>
         <div className="wrap_graph">
             <div class='graph_box' v-for="year in years" :key="year">
-                    <div className='graph_item ' :style="{height: yearFilter[year] + '%'}"></div>
+                    <div className='graph_item ' :style="{height: formattedPercent[year] + '%'}"></div>
                     <p>{{ year }}</p>
             </div>
         </div>
 </template>
 
 <script setup lang="ts">
+import type { Data } from '@/common.type';
+import axios from 'axios';
+import { watch } from 'vue';
+import { computed } from 'vue';
+import { onMounted } from 'vue';
 import { reactive } from 'vue';
 import { ref } from 'vue';
+import { useFetchStore } from '@/stores/storeFetch';
 
-const years = ref([2022, 2023, 2024]);
+const years = ref<string[]>([]);
+const datas = ref<Data[]>([]);
 const plusFilter = ref<string>("+1");
-const yearFilter = reactive<Record<number, number>>({2024: 56, 2023:55, 2022:23});
+const yearFilter = reactive<Record<string, number>>({});
+
+const fetchStore = useFetchStore();
 
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
 }
 
+onMounted(async ():Promise<void>=>{
+  try{
+    const results = await axios.get(`http://localhost:3001/item`);
+    datas.value = results.data;
+    years.value = [...new Set(datas.value.map(item => item.year).sort((a,b)=> Number(a) - Number(b)))];
+  }
+  catch(error){console.error(error)}
+});
+
+watch(
+  ()=> fetchStore.watchDeleteData,
+  (newData)=>{
+    datas.value = datas.value.filter((it)=> it.id !== newData?.id);
+  }
+)
+
+watch(
+  ()=> fetchStore.watchPostData,
+  (newData)=>{
+    if(newData){
+      datas.value.push(newData);
+    }
+  }
+)
+
+const formattedPercent = computed(()=>{
+  const plusTotal = datas.value.filter((it)=> it.multiply === plusFilter.value).reduce((pre, now) => pre + Number(now.money), 0);
+  const yearsMoneyArray = years.value.map((year)=>
+    datas.value.filter((it)=> it.year === year && it.multiply === plusFilter.value).reduce((pre, now)=> pre + Number(now.money), 0)
+  )
+  const percentArray = yearsMoneyArray.map((money)=> Math.round((money / plusTotal)*100) )
+  years.value.forEach((item, idx)=>{
+    yearFilter[item] = percentArray[idx]
+  })
+  return yearFilter
+})
 
 </script>
 
