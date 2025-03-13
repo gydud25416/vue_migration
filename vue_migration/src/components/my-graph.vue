@@ -28,10 +28,15 @@ const yearFilter = reactive<Record<string, number>>({});
 
 const fetchStore = useFetchStore();
 
+// 입출금 상태 변경
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
 }
 
+/** 마운트 시점에서 데이터 불러오기
+ * data.value = 리스트 데이터
+ * years.value= 년도 배열 데이터
+ */
 onMounted(async ():Promise<void>=>{
   try{
     const results = await axios.get(`http://localhost:3001/item`);
@@ -41,6 +46,7 @@ onMounted(async ():Promise<void>=>{
   catch(error){console.error(error)}
 });
 
+// 전역 상태 변경 - 삭제
 watch(
   ()=> fetchStore.watchDeleteData,
   (newData)=>{
@@ -48,6 +54,7 @@ watch(
   }
 )
 
+// 전역 상태 변경 - 저장
 watch(
   ()=> fetchStore.watchPostData,
   (newData)=>{
@@ -57,6 +64,9 @@ watch(
   }
 )
 
+/** 최종 가공된 퍼센트 배열
+ * ex) {2024: 45, 2023: 55}
+ */
 const formattedPercent = computed(()=>{
   const plusTotal = datas.value.filter((it)=> it.multiply === plusFilter.value).reduce((pre, now) => pre + Number(now.money), 0);
   const yearsMoneyArray = years.value.map((year)=>

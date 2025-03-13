@@ -12,13 +12,12 @@ import {ref} from 'vue';
 import type { Data } from '@/common.type';
 import { computed } from 'vue';
 import { watch } from 'vue';
+import { useFetchStore } from '@/stores/storeFetch';
 
 const total = ref(0);
 const datas = ref<Data[]>([]);
 
-const props = defineProps<{
-  fetchData:Data[]
-}>();
+const fetchStore = useFetchStore();
 
 onMounted(async ():Promise<void>=>{
   try{
@@ -32,9 +31,11 @@ onMounted(async ():Promise<void>=>{
 })
 
 watch(
-  ()=> props.fetchData,
+  ()=> fetchStore.watchDeleteData,
   (newData)=>{
-    datas.value = newData
+    if(newData){
+      datas.value = datas.value.filter((it)=> it.id !== newData.id)
+    }
     total.value = datas.value.reduce((pre, now)=> pre + (Number(now.multiply) * Number(now.money)), 0)
   }
 )

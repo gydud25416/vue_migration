@@ -57,10 +57,10 @@ const fetchStore = useFetchStore();
 const router = useRouter();
 const route = useRoute();
 
-const emit = defineEmits<{
-  (event: 'deleteData', id?: string):void;
-}>();
-
+/** 마운트 시점에서 리스트 불러오고 정렬
+ * datas.value = 리스트 데이터
+ * years.value = 년도 중복 제거한 배열 데이터
+ */
 onMounted(async (): Promise<void>=>{
   try {
     const result = await axios.get(`http://localhost:3001/item`);
@@ -75,11 +75,12 @@ onMounted(async (): Promise<void>=>{
   }
 })
 
+// 리스트 삭제시 전역 상태 변경
 function onDelete(delData:Data){
   fetchStore.delete(`http://localhost:3001/item/${delData.id}`)
-  emit('deleteData', delData.id)
 }
 
+// 전역 상태 변경 - 삭제
 watch(
   ()=> fetchStore.watchDeleteData,
   (newData)=>{
