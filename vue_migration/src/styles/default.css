@@ -19,13 +19,14 @@
   ul, li{list-style:none;}
   a:hover{color:#333;}
   a{color:#333; text-decoration: none;}
+  img{max-width: 100%; width:100%;}
   button{padding:10px 18px; font-size: 18px;  border:0; border-radius: 5px; color:#fff; font-family: 'GmarketSansMedium'; background:#aaa; cursor: pointer;}
   
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
       monospace;
   }
-  .main_wrap { max-width:500px; background:#fff; margin:0 auto; margin-top:100px;padding:30px;border-radius: 30px; box-shadow: 10px 10px 10px rgba(0,0,0,0.2)}
+  .main_wrap { max-width:500px; background:#fff; margin:0 auto; margin-top:100px;padding:30px;border-radius: 30px; }
   
   .main_wrap>div{border-radius: 10px;margin-bottom:50px;}
   
