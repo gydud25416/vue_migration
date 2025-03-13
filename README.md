@@ -5,7 +5,7 @@
 https://github.com/gydud25416/Study_ReactJS/tree/master/acount_book
 
 ---
-![image](https://github.com/user-attachments/assets/64b135ea-a35a-4ead-959f-9120b7b7daf5)
+![Image](https://github.com/user-attachments/assets/8da9c9d7-6944-42f5-ad55-f7c6564439e2)
 ### 프로젝트 시작
 
 `npm run dev`
