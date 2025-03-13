@@ -49,7 +49,6 @@ const searchValue = ref<string>("");
 const searchTagValue = ref<string>("");
 const yearValue = ref<string>("전체");
 const datas = ref<Data[]>([]);
-const originalDatas = ref<Data[]>([]);
 const years = ref<string[]>([]);
 
 const fetchStore = useFetchStore();
@@ -64,10 +63,9 @@ const route = useRoute();
 onMounted(async (): Promise<void>=>{
   try {
     const result = await axios.get(`http://localhost:3001/item`);
-    originalDatas.value = result.data.sort((a:Data ,b:Data )=>{
+    datas.value = result.data.sort((a:Data ,b:Data )=>{
       return new Date(b.day).getTime() - new Date(a.day).getTime() ;
     });
-    datas.value = originalDatas.value;
     years.value = [...new Set(datas.value.map((it)=> it.year))]
   }
   catch(error){
@@ -84,7 +82,7 @@ function onDelete(delData:Data){
 watch(
   ()=> fetchStore.watchDeleteData,
   (newData)=>{
-    originalDatas.value = originalDatas.value.filter((it)=> it.id !== newData?.id);
+    datas.value = datas.value.filter((it)=> it.id !== newData?.id);
   }
 )
 
@@ -129,15 +127,15 @@ onMounted(()=>{
   yearValue.value = route.query.year ? `${route.query.year}` : "전체";
   searchValue.value = route.query.search ? `${route.query.search}` : "";
   searchTagValue.value = route.query.search ? `${route.query.search}` : "";
-  if(String(route.query.multiply).trim() === "1"){
+  if(String(route.query.multiply).trim() === "1"){ // url을 통해 +1이라고 검색할 때
       route.query.multiply = "+1"
     }
   plusFilter.value = route.query.multiply ? `${route.query.multiply}` : "all";
 })
 
-// 리스트 데이터
+// 최종 필터링된 리스트 데이터
 const formattedData = computed(():Data[]=>{
-  let results = originalDatas.value;
+  let results = datas.value;
   if (searchTagValue.value) {
     results = results.filter((it) => it.content.includes(searchTagValue.value));
   }

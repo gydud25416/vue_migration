@@ -28,7 +28,7 @@ const yearFilter = reactive<Record<string, number>>({});
 
 const fetchStore = useFetchStore();
 
-// 입출금 상태 변경
+// 수입/지출 상태 변경
 function PlusFilter(value:string){
   plusFilter.value = value === "+1" ? "+1" : "-1";
 }
@@ -64,7 +64,7 @@ watch(
   }
 )
 
-/** 최종 가공된 퍼센트 배열
+/** 최종 가공된 년도별 퍼센트 객체
  * ex) {2024: 45, 2023: 55}
  */
 const formattedPercent = computed(()=>{
